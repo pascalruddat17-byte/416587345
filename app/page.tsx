@@ -1,3 +1,5 @@
+'use client';
+
 import {
   BatteryCharging,
   Fingerprint,
@@ -7,24 +9,44 @@ import {
   Signal,
   Wifi,
 } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
 import type { CSSProperties } from 'react';
-
-const logLines = [
-  'initialisiere remote shell ...',
-  'lese geraeteprofil: MOBILE-OS_17.6',
-  'suche offene dienste: 7 gefunden',
-  'kopiere kontakte.db [##########] 100%',
-  'extrahiere fotos.cache [########--] 82%',
-  'entschluessle standortverlauf ...',
-  'kamera-zugriff vorbereitet',
-  'mikrofon-stream gespiegelt',
-  'root-token akzeptiert: 0xA91F',
-  'persistenz wird installiert ...',
-];
 
 const scanItems = ['Kontakte', 'Fotos', 'Standort', 'Kamera', 'Wallet'];
 
+const randomHex = () => Math.floor(Math.random() * 0xffffff).toString(16).padStart(6, '0').toUpperCase();
+const randomMb = () => (Math.random() * 8.4 + 1.6).toFixed(1);
+
 export default function Home() {
+  const [progress, setProgress] = useState(0);
+  const [extracted, setExtracted] = useState('0.0');
+  const [packet, setPacket] = useState('0000');
+  const [logLines, setLogLines] = useState<string[]>([]);
+  const deviceToken = useMemo(() => randomHex(), []);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setProgress((current) => (current >= 100 ? 100 : Math.min(100, current + Math.ceil(Math.random() * 4))));
+      setExtracted((current) => (Number(current) >= 682.4 ? '682.4' : (Number(current) + Number(randomMb())).toFixed(1)));
+      setPacket(Math.floor(Math.random() * 9000 + 1000).toString());
+    }, 420);
+
+    const initialLogs = [
+      'initialisiere remote shell ...',
+      `lese geraeteprofil: MOBILE-OS_17.6 [${deviceToken}]`,
+      `suche offene dienste: ${Math.floor(Math.random() * 5) + 4} gefunden`,
+      'verbinde mit datenextraktions-modul ...',
+      'analysiere lokale container ...',
+      'extrahiere kontakt-index ...',
+      'bilde verschluesseltes datenpaket ...',
+      `paket #${Math.floor(Math.random() * 9000 + 1000)} wird uebertragen`,
+      'pruefe remote persistence ...',
+      'warte auf naechsten datenblock ...',
+    ];
+    setLogLines(initialLogs);
+    return () => window.clearInterval(timer);
+  }, [deviceToken]);
+
   return (
     <main className="relative min-h-dvh overflow-hidden bg-background text-foreground">
       <div className="matrix-rain" aria-hidden="true" />
@@ -54,11 +76,15 @@ export default function Home() {
 
             <div className="progress-cluster" aria-label="Hackfortschritt">
               <div className="flex items-center justify-between text-xs uppercase text-red-200">
-                <span>Systemscan</span>
-                <span className="blink">97%</span>
+                <span>Daten extrahieren</span>
+                <span className="blink">{progress}%</span>
               </div>
               <div className="progress-track">
-                <span className="progress-fill" />
+                <span className="progress-fill" style={{ width: `${progress}%` }} />
+              </div>
+              <div className="progress-meta">
+                <span>{extracted} MB gelesen</span>
+                <span>PKT-{packet}</span>
               </div>
             </div>
 
@@ -107,7 +133,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="reveal">
+            <div className={`reveal ${progress < 100 ? 'reveal-hidden' : 'reveal-visible'}`}>
               <LockKeyhole className="h-5 w-5" aria-hidden="true" />
               <span>Nur ein Prank. Dein Handy ist sicher.</span>
             </div>

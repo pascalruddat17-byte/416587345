@@ -298,10 +298,19 @@ h1 {
 .progress-fill {
   display: block;
   height: 100%;
-  width: 97%;
+  width: 0;
+  transition: width 340ms ease-out;
   background: linear-gradient(90deg, rgb(34 255 111), rgb(255 41 62), rgb(255 215 79));
   box-shadow: 0 0 18px rgb(42 255 112 / 52%);
   animation: dataSurge 1.8s ease-in-out infinite;
+}
+
+.progress-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: rgb(183 255 201 / 72%);
+  font-size: 0.68rem;
 }
 
 .data-tile {
@@ -426,8 +435,17 @@ h1 {
   padding: 12px;
   font-size: 0.9rem;
   font-weight: 700;
+  transition: opacity 420ms ease-out, transform 420ms ease-out;
+}
+
+.reveal-hidden {
   opacity: 0;
-  animation: revealSafe 0.8s ease-out 6.4s forwards;
+  transform: translateY(8px);
+}
+
+.reveal-visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .blink {
